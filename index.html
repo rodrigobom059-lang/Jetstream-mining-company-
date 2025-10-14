@@ -8,40 +8,37 @@
     :root{
       --bg:#0b0f12; --card:#0f1720; --muted:#94a3b8; --accent:#00ff88;
       --glass: rgba(255,255,255,0.03);
-      --shadow: 0 8px 30px rgba(2,6,23,0.6);
-      --glass-2: rgba(255,255,255,0.02);
     }
-    html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,Arial;}
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial;}
     body{background:linear-gradient(180deg,#071018,#051017); color:#e6eef7; -webkit-font-smoothing:antialiased}
     .wrap{max-width:1100px;margin:28px auto;padding:18px}
     header.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
     .brand{display:flex;align-items:center;gap:12px}
-    .logo{width:52px;height:52px;border-radius:12px;background:linear-gradient(90deg,#0ea5a3,#5b21b6);display:flex;align-items:center;justify-content:center;font-weight:800;color:#022;box-shadow:0 6px 18px rgba(14,165,163,0.07)}
+    .logo{width:52px;height:52px;border-radius:12px;background:linear-gradient(90deg,#0ea5a3,#5b21b6);display:flex;align-items:center;justify-content:center;font-weight:800;color:#022}
     h1{font-size:20px;margin:0}
     .controls{display:flex;gap:10px;align-items:center}
     button.btn{background:var(--accent);color:#012;padding:9px 14px;border-radius:10px;border:0;font-weight:600;cursor:pointer}
-    button.ghost{background:transparent;border:1px solid var(--glass-2);color:var(--muted);padding:8px 12px;border-radius:10px}
-    .grid{display:grid;grid-template-columns: 1fr 360px;gap:18px}
-    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:14px;padding:18px;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,0.03)}
+    button.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);padding:8px 12px;border-radius:10px}
+    .grid{display:grid;grid-template-columns:1fr 360px;gap:18px}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:14px;padding:18px;box-shadow:0 10px 30px rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.03)}
     .stat-row{display:flex;gap:14px;flex-wrap:wrap}
-    .stat{flex:1;min-width:160px;background:var(--glass);padding:12px;border-radius:10px}
+    .stat{flex:1;min-width:160px;background:rgba(255,255,255,0.02);padding:12px;border-radius:10px}
     .stat h3{margin:0;font-size:12px;color:var(--muted);font-weight:600}
     .stat p{margin:6px 0 0;font-size:20px;font-weight:700}
     .small{font-size:12px;color:var(--muted)}
     .controls-bottom{display:flex;gap:10px;align-items:center;margin-top:12px}
     .plan{display:flex;gap:8px}
-    .plan .p{padding:8px 10px;border-radius:10px;background:transparent;border:1px dashed rgba(255,255,255,0.03);cursor:pointer}
-    .plan .p.active{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04)}
-    .chart{height:180px;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);border-radius:10px;padding:8px}
+    .plan .p{padding:8px 10px;border-radius:10px;background:transparent;border:1px dashed rgba(255,255,255,0.03);cursor:pointer;color:var(--muted)}
+    .plan .p.active{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);color:var(--accent)}
+    .chart{height:180px;border-radius:10px;padding:8px}
     canvas{width:100%;height:100%;display:block;border-radius:8px}
-    .right .card + .card{margin-top:12px}
     .logs{height:200px;overflow:auto;background:transparent;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.02)}
     .row{display:flex;gap:12px}
     .muted{color:var(--muted)}
-    .toggle{display:flex;gap:6px;align-items:center}
     input[type=range]{width:140px}
     footer{color:var(--muted);font-size:12px;margin-top:18px;text-align:center}
     @media (max-width:900px){.grid{grid-template-columns:1fr;}.right{order:2}}
+    a.home{color:var(--muted);text-decoration:none;border:1px solid rgba(255,255,255,0.02);padding:6px 10px;border-radius:8px}
   </style>
 </head>
 <body>
@@ -50,13 +47,13 @@
       <div class="brand">
         <div class="logo">CM</div>
         <div>
-          <h1>Jetstream Mining Company</h1>
-          <div class="muted" style="font-size:12px;margin-top:4px">Cloud hashpower simulator — demo only</div>
+          <h1>Jetstream Mining Company — Demo Dashboard</h1>
+          <div class="muted" style="font-size:12px;margin-top:4px">Interactive simulation — no real money</div>
         </div>
       </div>
 
       <div class="controls">
-        <div class="toggle muted">Status: <strong id="status" style="margin-left:8px;color:var(--accent)">Offline</strong></div>
+        <a class="home" href="index.html">← Home</a>
         <button id="startBtn" class="btn">Start Mining</button>
         <button id="stopBtn" class="ghost" style="display:none">Stop</button>
       </div>
@@ -69,7 +66,7 @@
             <div class="stat">
               <h3>Hashrate</h3>
               <p id="hashrate">0 TH/s</p>
-              <div class="small muted">Current allocated hashpower</div>
+              <div class="small muted">Allocated hashpower</div>
             </div>
             <div class="stat">
               <h3>Estimated BTC Earned</h3>
@@ -140,21 +137,17 @@
             <button id="resetBtn" class="ghost">Reset</button>
           </div>
 
-          <div style="margin-top:12px" class="muted small">You can adjust the speed and plan to change the simulated earnings. Click "Simulate Payout" to create a fake payout event.</div>
+          <div style="margin-top:12px" class="muted small">Adjust the speed and plan to change simulated earnings. "Simulate Payout" creates a fake payout event.</div>
         </div>
       </div>
     </div>
 
-    <footer>
-      Demo site — not connected to any wallets. For presentation purposes only.
-    </footer>
+    <footer>Demo site — not connected to any wallets. For presentation purposes only.</footer>
   </div>
 
   <script>
-    /* --- Simulator -- */
     const startBtn = document.getElementById('startBtn');
     const stopBtn = document.getElementById('stopBtn');
-    const statusEl = document.getElementById('status');
     const hashrateEl = document.getElementById('hashrate');
     const btcEl = document.getElementById('btc');
     const usdEl = document.getElementById('usd');
@@ -168,28 +161,23 @@
     const resetBtn = document.getElementById('resetBtn');
 
     let running = false;
-    let baseHash = 50; // TH/s
+    let baseHash = 50;
     let speed = 1.0;
     let earnedBTC = 0;
-    let usdBalance = 0;
     let payouts = 0;
     let startTime = null;
     let timer = null;
 
-    // Fake network difficulty / rate calculation:
-    // We'll simulate that 1 TH/s produces approx 0.0000000003 BTC per second at demo rate (totally made-up).
     function btcPerSecond(ths){
-      // base multiplier tuned for visible demo growth
       return ths * 0.00000000075;
     }
 
-    // UI: plan clicks
     plans.querySelectorAll('.p').forEach(p=>{
       p.addEventListener('click', ()=> {
         plans.querySelectorAll('.p').forEach(x=>x.classList.remove('active'));
         p.classList.add('active');
         baseHash = Number(p.dataset.h);
-        updateHashrateDisplay();
+        hashrateEl.textContent = baseHash + ' TH/s';
       });
     });
 
@@ -206,42 +194,25 @@
       logs.prepend(node);
     }
 
-    function updateHashrateDisplay(){
-      hashrateEl.textContent = `${(baseHash).toLocaleString()} TH/s`;
-    }
-
-    function formatBTC(x){
-      return x.toFixed(8) + ' BTC';
-    }
-    function formatUSD(x){
-      return '$' + Number(x).toFixed(2);
-    }
+    function formatBTC(x){ return x.toFixed(8) + ' BTC'; }
+    function formatUSD(x){ return '$' + Number(x).toFixed(2); }
 
     function startMining(){
       if(running) return;
       running = true;
       startTime = Date.now();
-      statusEl.textContent = 'Running';
       startBtn.style.display = 'none';
       stopBtn.style.display = 'inline-block';
       appendLog('Miner started (simulated). Allocated ' + baseHash + ' TH/s.');
-      // main loop: update every second
       timer = setInterval(()=>{
-        // update earnings
         const btcGain = btcPerSecond(baseHash) * speed;
         earnedBTC += btcGain;
-        // simulate price: random walk around $60k
-        const price = 60000 + Math.sin(Date.now()/60000)*200 + (Math.random()-0.5)*500;
-        usdBalance = earnedBTC * price;
-        // update displays
+        const price = 60000 + (Math.random()-0.5)*1000;
+        const usdBalance = earnedBTC * price;
         btcEl.textContent = formatBTC(earnedBTC);
         usdEl.textContent = formatUSD(usdBalance);
         updateUptime();
-        // small chance for a payout event
-        if(Math.random() < 0.02 * speed){
-          triggerPayout();
-        }
-        // chart update
+        if(Math.random() < 0.02 * speed){ triggerPayout(); }
         addChartPoint(baseHash * speed * (0.8 + Math.random()*0.4));
       }, 1000);
     }
@@ -261,7 +232,6 @@
       clearInterval(timer);
       startBtn.style.display = 'inline-block';
       stopBtn.style.display = 'none';
-      statusEl.textContent = 'Offline';
       appendLog('Miner stopped (simulated).');
       addChartPoint(0);
     }
@@ -269,25 +239,24 @@
     function triggerPayout(){
       payouts++;
       payoutsEl.textContent = payouts;
-      const amount = earnedBTC * 0.15; // simulated partial payout
+      const amount = earnedBTC * 0.15;
       earnedBTC -= amount;
-      appendLog(`Simulated payout processed: ${amount.toFixed(8)} BTC (fake).`);
-      // adjust USD balance display too
-      usdEl.textContent = formatUSD(earnedBTC * 60000);
+      appendLog(`Simulated payout: ${amount.toFixed(8)} BTC (fake).`);
       btcEl.textContent = formatBTC(earnedBTC);
     }
 
     withdrawBtn.addEventListener('click', ()=>{
       appendLog('Manual simulated payout requested.');
       triggerPayout();
+      alert('Simulated payout processed — this is a demo only.');
     });
 
     resetBtn.addEventListener('click', ()=>{
-      if(confirm('Reset simulated miner stats?')){
-        earnedBTC = 0; usdBalance = 0; payouts = 0; startTime = null;
-        btcEl.textContent = formatBTC(earnedBTC);
-        usdEl.textContent = formatUSD(usdBalance);
-        payoutsEl.textContent = payouts;
+      if(confirm('Reset simulated stats?')){
+        earnedBTC = 0; payouts = 0; startTime = null;
+        btcEl.textContent = formatBTC(0);
+        usdEl.textContent = formatUSD(0);
+        payoutsEl.textContent = 0;
         uptimeEl.textContent = '00:00:00';
         logs.innerHTML = '<div class="muted">No activity — start mining to see simulated events.</div>';
         appendLog('Simulator reset.');
@@ -298,70 +267,28 @@
     stopBtn.addEventListener('click', stopMining);
     startBtn.addEventListener('click', startMining);
 
-    // ===== Chart (tiny canvas sparkline) =====
-    const canvas = document.getElementById('chartCanvas');
-    const ctx = canvas.getContext('2d');
-    let chartW = 1, chartH = 1;
-    let points = [];
-    function resizeCanvas(){
-      const r = devicePixelRatio || 1;
-      chartW = canvas.clientWidth;
-      chartH = canvas.clientHeight;
-      canvas.width = chartW * r;
-      canvas.height = chartH * r;
-      ctx.setTransform(r,0,0,r,0,0);
-      drawChart();
-    }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-
-    function addChartPoint(v){
-      points.push(v);
-      if(points.length > 40) points.shift();
-      drawChart();
-    }
-
+    /* tiny chart */
+    const canvas = document.getElementById('chartCanvas'); const ctx = canvas.getContext('2d');
+    let chartW=1, chartH=1, points = [];
+    function resizeCanvas(){ const r = devicePixelRatio || 1; chartW = canvas.clientWidth; chartH = canvas.clientHeight; canvas.width = chartW * r; canvas.height = chartH * r; ctx.setTransform(r,0,0,r,0,0); drawChart(); }
+    window.addEventListener('resize', resizeCanvas); resizeCanvas();
+    function addChartPoint(v){ points.push(v); if(points.length>40) points.shift(); drawChart(); }
     function drawChart(){
-      ctx.clearRect(0,0,chartW,chartH);
-      // background grid
-      ctx.fillStyle = 'rgba(255,255,255,0.01)';
-      ctx.fillRect(0,0,chartW,chartH);
-      // if no points
-      if(points.length === 0){
-        ctx.fillStyle = 'rgba(255,255,255,0.02)';
-        ctx.fillRect(0,0,chartW,chartH);
-        return;
-      }
-      const max = Math.max(...points) || 1;
-      const min = Math.min(...points);
-      const range = Math.max(1, max - min);
-      ctx.beginPath();
-      for(let i=0;i<points.length;i++){
-        const x = (i/(points.length-1)) * chartW;
-        const y = chartH - ((points[i]-min)/range) * chartH;
-        if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
-      }
-      ctx.lineWidth = 3;
-      ctx.strokeStyle = 'rgba(0,255,136,0.95)';
-      ctx.stroke();
-      // fill under
+      ctx.clearRect(0,0,chartW,chartH); if(points.length===0){ ctx.fillStyle='rgba(255,255,255,0.02)'; ctx.fillRect(0,0,chartW,chartH); return; }
+      const max = Math.max(...points), min = Math.min(...points), range = Math.max(1,max-min);
+      ctx.beginPath(); for(let i=0;i<points.length;i++){ const x = (i/(points.length-1))*chartW; const y = chartH - ((points[i]-min)/range)*chartH; if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); }
+      ctx.lineWidth=3; ctx.strokeStyle='rgba(0,255,136,0.95)'; ctx.stroke();
       ctx.lineTo(chartW,chartH); ctx.lineTo(0,chartH); ctx.closePath();
-      const g = ctx.createLinearGradient(0,0,0,chartH);
-      g.addColorStop(0,'rgba(0,255,136,0.12)');
-      g.addColorStop(1,'rgba(0,255,136,0.02)');
-      ctx.fillStyle = g;
-      ctx.fill();
+      const g = ctx.createLinearGradient(0,0,0,chartH); g.addColorStop(0,'rgba(0,255,136,0.12)'); g.addColorStop(1,'rgba(0,255,136,0.02)'); ctx.fillStyle = g; ctx.fill();
     }
 
-    // initial states
-    updateHashrateDisplay();
+    // init
+    hashrateEl.textContent = baseHash + ' TH/s';
     btcEl.textContent = formatBTC(0);
     usdEl.textContent = formatUSD(0);
     payoutsEl.textContent = 0;
-
-    // small demo events to make it feel alive before start
-    appendLog('Welcome to the Jetstream demo. Click Start Mining to begin the simulation.');
+    appendLog('Welcome — click Start Mining to begin the simulation.');
     addChartPoint(0);
   </script>
 </body>
-  </html>
+                </html>
