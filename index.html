@@ -1,34 +1,367 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Jetstream Mining Company</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        text-align: center;
-        background: #0d1117;
-        color: white;
-        padding-top: 100px;
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Jetstream Mining Company — Dashboard</title>
+  <style>
+    :root{
+      --bg:#0b0f12; --card:#0f1720; --muted:#94a3b8; --accent:#00ff88;
+      --glass: rgba(255,255,255,0.03);
+      --shadow: 0 8px 30px rgba(2,6,23,0.6);
+      --glass-2: rgba(255,255,255,0.02);
+    }
+    html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,Arial;}
+    body{background:linear-gradient(180deg,#071018,#051017); color:#e6eef7; -webkit-font-smoothing:antialiased}
+    .wrap{max-width:1100px;margin:28px auto;padding:18px}
+    header.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:52px;height:52px;border-radius:12px;background:linear-gradient(90deg,#0ea5a3,#5b21b6);display:flex;align-items:center;justify-content:center;font-weight:800;color:#022;box-shadow:0 6px 18px rgba(14,165,163,0.07)}
+    h1{font-size:20px;margin:0}
+    .controls{display:flex;gap:10px;align-items:center}
+    button.btn{background:var(--accent);color:#012;padding:9px 14px;border-radius:10px;border:0;font-weight:600;cursor:pointer}
+    button.ghost{background:transparent;border:1px solid var(--glass-2);color:var(--muted);padding:8px 12px;border-radius:10px}
+    .grid{display:grid;grid-template-columns: 1fr 360px;gap:18px}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:14px;padding:18px;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,0.03)}
+    .stat-row{display:flex;gap:14px;flex-wrap:wrap}
+    .stat{flex:1;min-width:160px;background:var(--glass);padding:12px;border-radius:10px}
+    .stat h3{margin:0;font-size:12px;color:var(--muted);font-weight:600}
+    .stat p{margin:6px 0 0;font-size:20px;font-weight:700}
+    .small{font-size:12px;color:var(--muted)}
+    .controls-bottom{display:flex;gap:10px;align-items:center;margin-top:12px}
+    .plan{display:flex;gap:8px}
+    .plan .p{padding:8px 10px;border-radius:10px;background:transparent;border:1px dashed rgba(255,255,255,0.03);cursor:pointer}
+    .plan .p.active{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04)}
+    .chart{height:180px;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);border-radius:10px;padding:8px}
+    canvas{width:100%;height:100%;display:block;border-radius:8px}
+    .right .card + .card{margin-top:12px}
+    .logs{height:200px;overflow:auto;background:transparent;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.02)}
+    .row{display:flex;gap:12px}
+    .muted{color:var(--muted)}
+    .toggle{display:flex;gap:6px;align-items:center}
+    input[type=range]{width:140px}
+    footer{color:var(--muted);font-size:12px;margin-top:18px;text-align:center}
+    @media (max-width:900px){.grid{grid-template-columns:1fr;}.right{order:2}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <div class="brand">
+        <div class="logo">CM</div>
+        <div>
+          <h1>Jetstream Mining Company</h1>
+          <div class="muted" style="font-size:12px;margin-top:4px">Cloud hashpower simulator — demo only</div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <div class="toggle muted">Status: <strong id="status" style="margin-left:8px;color:var(--accent)">Offline</strong></div>
+        <button id="startBtn" class="btn">Start Mining</button>
+        <button id="stopBtn" class="ghost" style="display:none">Stop</button>
+      </div>
+    </header>
+
+    <div class="grid">
+      <div>
+        <div class="card">
+          <div class="stat-row">
+            <div class="stat">
+              <h3>Hashrate</h3>
+              <p id="hashrate">0 TH/s</p>
+              <div class="small muted">Current allocated hashpower</div>
+            </div>
+            <div class="stat">
+              <h3>Estimated BTC Earned</h3>
+              <p id="btc">0.00000000 BTC</p>
+              <div class="small muted">Simulated mining rewards</div>
+            </div>
+            <div class="stat">
+              <h3>Balance (USD)</h3>
+              <p id="usd">$0.00</p>
+              <div class="small muted">Simulated balance</div>
+            </div>
+          </div>
+
+          <div class="controls-bottom">
+            <div class="plan" id="plans">
+              <div class="p active" data-h="50">50 TH/s</div>
+              <div class="p" data-h="200">200 TH/s</div>
+              <div class="p" data-h="1000">1 PH/s</div>
+            </div>
+
+            <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+              <label class="muted">Speed</label>
+              <input id="speed" type="range" min="0.2" max="2.0" step="0.1" value="1">
+              <div class="muted" id="speedVal">1.0x</div>
+            </div>
+          </div>
+
+          <div style="margin-top:14px">
+            <div class="chart card" style="padding:10px">
+              <canvas id="chartCanvas"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:14px">
+          <h3 style="margin:0 0 10px 0">Overview</h3>
+          <div class="row" style="align-items:center;justify-content:space-between">
+            <div>
+              <div class="small muted">Pool</div>
+              <div style="font-weight:700">Jetpool Demo (simulated)</div>
+            </div>
+            <div>
+              <div class="small muted">Uptime</div>
+              <div id="uptime" style="font-weight:700">00:00:00</div>
+            </div>
+            <div>
+              <div class="small muted">Payouts</div>
+              <div id="payouts" style="font-weight:700">0</div>
+            </div>
+          </div>
+
+          <div style="margin-top:12px" class="muted small">This is a simulated miner interface for demo and presentation. No real currency is used.</div>
+        </div>
+      </div>
+
+      <div class="right">
+        <div class="card">
+          <h3 style="margin:0 0 8px 0">Live Activity</h3>
+          <div class="logs" id="logs">
+            <div class="muted">No activity — start mining to see simulated events.</div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <h3 style="margin:0 0 8px 0">Controls</h3>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button id="withdrawBtn" class="ghost">Simulate Payout</button>
+            <button id="resetBtn" class="ghost">Reset</button>
+          </div>
+
+          <div style="margin-top:12px" class="muted small">You can adjust the speed and plan to change the simulated earnings. Click "Simulate Payout" to create a fake payout event.</div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      Demo site — not connected to any wallets. For presentation purposes only.
+    </footer>
+  </div>
+
+  <script>
+    /* --- Simulator -- */
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const statusEl = document.getElementById('status');
+    const hashrateEl = document.getElementById('hashrate');
+    const btcEl = document.getElementById('btc');
+    const usdEl = document.getElementById('usd');
+    const logs = document.getElementById('logs');
+    const uptimeEl = document.getElementById('uptime');
+    const payoutsEl = document.getElementById('payouts');
+    const speedSlider = document.getElementById('speed');
+    const speedVal = document.getElementById('speedVal');
+    const plans = document.getElementById('plans');
+    const withdrawBtn = document.getElementById('withdrawBtn');
+    const resetBtn = document.getElementById('resetBtn');
+
+    let running = false;
+    let baseHash = 50; // TH/s
+    let speed = 1.0;
+    let earnedBTC = 0;
+    let usdBalance = 0;
+    let payouts = 0;
+    let startTime = null;
+    let timer = null;
+
+    // Fake network difficulty / rate calculation:
+    // We'll simulate that 1 TH/s produces approx 0.0000000003 BTC per second at demo rate (totally made-up).
+    function btcPerSecond(ths){
+      // base multiplier tuned for visible demo growth
+      return ths * 0.00000000075;
+    }
+
+    // UI: plan clicks
+    plans.querySelectorAll('.p').forEach(p=>{
+      p.addEventListener('click', ()=> {
+        plans.querySelectorAll('.p').forEach(x=>x.classList.remove('active'));
+        p.classList.add('active');
+        baseHash = Number(p.dataset.h);
+        updateHashrateDisplay();
+      });
+    });
+
+    speedSlider.addEventListener('input', ()=>{
+      speed = Number(speedSlider.value);
+      speedVal.textContent = speed.toFixed(1) + 'x';
+    });
+
+    function appendLog(t){
+      const node = document.createElement('div');
+      node.style.padding = '6px 0';
+      node.style.borderBottom = '1px solid rgba(255,255,255,0.02)';
+      node.innerHTML = `<div style="font-size:12px;color:var(--muted)">${new Date().toLocaleTimeString()}</div><div>${t}</div>`;
+      logs.prepend(node);
+    }
+
+    function updateHashrateDisplay(){
+      hashrateEl.textContent = `${(baseHash).toLocaleString()} TH/s`;
+    }
+
+    function formatBTC(x){
+      return x.toFixed(8) + ' BTC';
+    }
+    function formatUSD(x){
+      return '$' + Number(x).toFixed(2);
+    }
+
+    function startMining(){
+      if(running) return;
+      running = true;
+      startTime = Date.now();
+      statusEl.textContent = 'Running';
+      startBtn.style.display = 'none';
+      stopBtn.style.display = 'inline-block';
+      appendLog('Miner started (simulated). Allocated ' + baseHash + ' TH/s.');
+      // main loop: update every second
+      timer = setInterval(()=>{
+        // update earnings
+        const btcGain = btcPerSecond(baseHash) * speed;
+        earnedBTC += btcGain;
+        // simulate price: random walk around $60k
+        const price = 60000 + Math.sin(Date.now()/60000)*200 + (Math.random()-0.5)*500;
+        usdBalance = earnedBTC * price;
+        // update displays
+        btcEl.textContent = formatBTC(earnedBTC);
+        usdEl.textContent = formatUSD(usdBalance);
+        updateUptime();
+        // small chance for a payout event
+        if(Math.random() < 0.02 * speed){
+          triggerPayout();
+        }
+        // chart update
+        addChartPoint(baseHash * speed * (0.8 + Math.random()*0.4));
+      }, 1000);
+    }
+
+    function updateUptime(){
+      if(!startTime) { uptimeEl.textContent = '00:00:00'; return; }
+      const s = Math.floor((Date.now()-startTime)/1000);
+      const hh = String(Math.floor(s/3600)).padStart(2,'0');
+      const mm = String(Math.floor((s%3600)/60)).padStart(2,'0');
+      const ss = String(s%60).padStart(2,'0');
+      uptimeEl.textContent = `${hh}:${mm}:${ss}`;
+    }
+
+    function stopMining(){
+      if(!running) return;
+      running = false;
+      clearInterval(timer);
+      startBtn.style.display = 'inline-block';
+      stopBtn.style.display = 'none';
+      statusEl.textContent = 'Offline';
+      appendLog('Miner stopped (simulated).');
+      addChartPoint(0);
+    }
+
+    function triggerPayout(){
+      payouts++;
+      payoutsEl.textContent = payouts;
+      const amount = earnedBTC * 0.15; // simulated partial payout
+      earnedBTC -= amount;
+      appendLog(`Simulated payout processed: ${amount.toFixed(8)} BTC (fake).`);
+      // adjust USD balance display too
+      usdEl.textContent = formatUSD(earnedBTC * 60000);
+      btcEl.textContent = formatBTC(earnedBTC);
+    }
+
+    withdrawBtn.addEventListener('click', ()=>{
+      appendLog('Manual simulated payout requested.');
+      triggerPayout();
+    });
+
+    resetBtn.addEventListener('click', ()=>{
+      if(confirm('Reset simulated miner stats?')){
+        earnedBTC = 0; usdBalance = 0; payouts = 0; startTime = null;
+        btcEl.textContent = formatBTC(earnedBTC);
+        usdEl.textContent = formatUSD(usdBalance);
+        payoutsEl.textContent = payouts;
+        uptimeEl.textContent = '00:00:00';
+        logs.innerHTML = '<div class="muted">No activity — start mining to see simulated events.</div>';
+        appendLog('Simulator reset.');
+        addChartPoint(0);
       }
-      h1 {
-        color: #00ff88;
+    });
+
+    stopBtn.addEventListener('click', stopMining);
+    startBtn.addEventListener('click', startMining);
+
+    // ===== Chart (tiny canvas sparkline) =====
+    const canvas = document.getElementById('chartCanvas');
+    const ctx = canvas.getContext('2d');
+    let chartW = 1, chartH = 1;
+    let points = [];
+    function resizeCanvas(){
+      const r = devicePixelRatio || 1;
+      chartW = canvas.clientWidth;
+      chartH = canvas.clientHeight;
+      canvas.width = chartW * r;
+      canvas.height = chartH * r;
+      ctx.setTransform(r,0,0,r,0,0);
+      drawChart();
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function addChartPoint(v){
+      points.push(v);
+      if(points.length > 40) points.shift();
+      drawChart();
+    }
+
+    function drawChart(){
+      ctx.clearRect(0,0,chartW,chartH);
+      // background grid
+      ctx.fillStyle = 'rgba(255,255,255,0.01)';
+      ctx.fillRect(0,0,chartW,chartH);
+      // if no points
+      if(points.length === 0){
+        ctx.fillStyle = 'rgba(255,255,255,0.02)';
+        ctx.fillRect(0,0,chartW,chartH);
+        return;
       }
-      button {
-        background: #00ff88;
-        color: #000;
-        padding: 12px 25px;
-        border: none;
-        border-radius: 8px;
-        font-size: 16px;
-        cursor: pointer;
+      const max = Math.max(...points) || 1;
+      const min = Math.min(...points);
+      const range = Math.max(1, max - min);
+      ctx.beginPath();
+      for(let i=0;i<points.length;i++){
+        const x = (i/(points.length-1)) * chartW;
+        const y = chartH - ((points[i]-min)/range) * chartH;
+        if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
       }
-    </style>
-  </head>
-  <body>
-    <h1>🚀 Jetstream Mining Company</h1>
-    <p>Welcome to the official site</p>
-    <button>Start Mining</button>
-  </body>
-</html>
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = 'rgba(0,255,136,0.95)';
+      ctx.stroke();
+      // fill under
+      ctx.lineTo(chartW,chartH); ctx.lineTo(0,chartH); ctx.closePath();
+      const g = ctx.createLinearGradient(0,0,0,chartH);
+      g.addColorStop(0,'rgba(0,255,136,0.12)');
+      g.addColorStop(1,'rgba(0,255,136,0.02)');
+      ctx.fillStyle = g;
+      ctx.fill();
+    }
+
+    // initial states
+    updateHashrateDisplay();
+    btcEl.textContent = formatBTC(0);
+    usdEl.textContent = formatUSD(0);
+    payoutsEl.textContent = 0;
+
+    // small demo events to make it feel alive before start
+    appendLog('Welcome to the Jetstream demo. Click Start Mining to begin the simulation.');
+    addChartPoint(0);
+  </script>
+</body>
+  </html>
